@@ -47,6 +47,11 @@ public class ParametersWindow extends JFrame {
     private boolean nRoutes_PROVIDED = false, nOrders_PROVIDED = false, trucks_pRoute_PROVIDED = false, orders_pTruck_PROVIDED = false;
     private final JLabel ordersCounterLbl;
 
+    private final ProgramWindow programWindow;
+
+    private int[][] allocated, needs, cMinusA;
+    private int[] resources, available;
+
     public ParametersWindow(final int width, final int height) {
 
         Font labelFont = new Font("Tahoma", 1, 36);
@@ -306,20 +311,20 @@ public class ParametersWindow extends JFrame {
                 queueWindow.setLocationRelativeTo(null);
                 queueWindow.setUndecorated(true);
                 queueWindow.setResizable(false);
-                
+
                 ImageIcon qBgImage = new ImageIcon(getClass().getResource("/Img/Buttons/hehe.png"));
-                
+
                 JLabel qBg = new JLabel();
                 qBg.setSize(new Dimension(screenSizeW, screenSizeH));
                 qBg.setIcon(new ImageIcon(qBgImage.getImage().getScaledInstance(screenSizeW, screenSizeH, Image.SCALE_SMOOTH)));
-                
+
                 queueWindow.add(qBg);
                 qBg.add(exitBtn);
                 queueWindow.setVisible(true);
                 hideWindow();
             }
         });
-        
+
         this.add(this.background);
         this.background.add(this.exitBtn);
         this.background.add(this.hideBtn);
@@ -334,6 +339,8 @@ public class ParametersWindow extends JFrame {
         this.background.add(this.orders_p_TRUCK);
         this.background.add(this.orderNowBtn);
         this.background.add(queue);
+
+        this.programWindow = new ProgramWindow(this.screenSizeW, this.screenSizeH, this);
     }
 
     private void hideBtnActionPerformed() {
@@ -375,7 +382,7 @@ public class ParametersWindow extends JFrame {
         }
 
     }
-    
+
     private void hideWindow() {
         this.setVisible(false);
     }
@@ -393,6 +400,13 @@ public class ParametersWindow extends JFrame {
                     }
                     this.number_ORDERS.setEditable(false);
                     this.ordersNumberCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+                   
+                    this.allocated = new int[this.n_Orders][this.n_Routes];
+                    this.needs = new int[this.n_Orders][this.n_Routes];
+                    this.cMinusA = new int[this.n_Orders][this.n_Routes];
+                    this.resources = new int[this.n_Routes];
+                    this.available = new int[this.n_Routes];
+
                 } else {
                     JOptionPane.showMessageDialog(this, "Please provide a value", "ALERT", JOptionPane.ERROR_MESSAGE);
                 }
@@ -489,7 +503,12 @@ public class ParametersWindow extends JFrame {
 
     private void orderNowBtnActionPerformed() {
         if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.orders_pTruck_PROVIDED == true && this.trucks_pRoute_PROVIDED == true) {
-            JOptionPane.showMessageDialog(this, "App Initialized", "MESSAGE", JOptionPane.PLAIN_MESSAGE);
+            //JOptionPane.showMessageDialog(this, "App Initialized", "MESSAGE", JOptionPane.PLAIN_MESSAGE);
+            this.programWindow.setVisible(true);
+            this.programWindow.setEnabled(true);
+
+            this.setVisible(false);
+            this.setEnabled(false);
         } else {
             JOptionPane.showMessageDialog(this, "All checkbox need to be checked", "ALERT", JOptionPane.ERROR_MESSAGE);
         }

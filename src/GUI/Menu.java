@@ -32,7 +32,7 @@ public class Menu extends javax.swing.JFrame {
     private final int btnSizeW;
     private final int btnSizeH;
     private final int smallSquareBtnSize;
-    private final int percent = 23, smallBtnPercent;
+    private final int percent = 15, smallBtnPercent;
     private final int btnMarginX;
     private final int btnMarginY;
 

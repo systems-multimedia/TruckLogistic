@@ -261,8 +261,7 @@ public class ParametersWindow extends JFrame {
 
         /**
          * ************************************
-         * ARRAY *
-         ************************************
+         * ARRAY * ***********************************
          */
         this.trucks_p_ROUTE_value = new JTextField();
         this.trucks_p_ROUTE_value.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 13) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
@@ -332,8 +331,7 @@ public class ParametersWindow extends JFrame {
 
         /**
          * ************************************
-         * MATRIX *
-         ************************************
+         * MATRIX * ***********************************
          */
         this.trucks_p_ROUTE_truck = new JTextField();
         this.trucks_p_ROUTE_truck.setBounds((this.screenSizeW * 63) / 100, (this.screenSizeH * 42) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
@@ -427,8 +425,7 @@ public class ParametersWindow extends JFrame {
 
         /**
          * ************************************
-         * MATRIX / END *
-         ************************************
+         * MATRIX / END * ***********************************
          */
         JButton queue = new JButton();
         queue.setBounds((this.screenSizeW * 80) / 100, (this.screenSizeH * 9) / 100, (this.screenSizeH * 5) / 100, (this.screenSizeH * 37) / 100);
@@ -640,12 +637,8 @@ public class ParametersWindow extends JFrame {
                     this.ordersNumberCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
 
                     if (this.nRoutes_PROVIDED == true) {
-                        this.trucks_p_ROUTE_route.setEnabled(true);
-                        this.trucks_p_ROUTE_route.setModel(new SpinnerNumberModel(0, 0, this.n_Routes - 1, 1));
-                        this.trucks_p_ROUTE_order.setEnabled(true);
-                        this.trucks_p_ROUTE_order.setModel(new SpinnerNumberModel(0, 0, this.n_Orders - 1, 1));
-                        this.trucks_p_ROUTE_truck.setEditable(true);
-                        this.trucks_p_ROUTE_truck.setEnabled(true);
+                        this.trucks_p_ROUTE.setEnabled(true);
+                        this.trucks_p_ROUTE.setModel(new SpinnerNumberModel(0,0,this.n_Routes - 1, 1));
                         save.setEnabled(true);
                         this.max = new int[this.n_Routes][this.n_Orders];
                         this.resources = new int[n_Routes];
@@ -693,6 +686,19 @@ public class ParametersWindow extends JFrame {
                     if (this.trucks_Route <= 0) {
                         JOptionPane.showMessageDialog(this, "Values need to be greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
                         return;
+                    }
+                    if (this.nRoutes_PROVIDED == true) {
+                        this.trucks_p_ROUTE_route.setModel(new SpinnerNumberModel(0, 0, this.n_Routes - 1, 1));
+                        this.trucks_p_ROUTE_order.setEnabled(true);
+                        this.trucks_p_ROUTE_order.setModel(new SpinnerNumberModel(0, 0, this.n_Orders - 1, 1));
+                        this.trucks_p_ROUTE_truck.setEditable(true);
+                        this.trucks_p_ROUTE_truck.setEnabled(true);
+                        saveMatrixValue.setEnabled(true);
+                        this.max = new int[this.n_Routes][this.n_Orders];
+                        this.resources = new int[n_Routes];
+
+                        initializeArray();
+                        this.trucks_p_ROUTE_truck.setText("" + this.max[i][j]);
                     }
                     this.trucks_p_ROUTE_truck.setEditable(false);
                     this.trucksPerRouteCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));

@@ -1,5 +1,6 @@
 package GUI;
 
+import Controller.BankerAlgorithm;
 import Controller.state;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -49,17 +50,19 @@ public class ParametersWindow extends JFrame {
     private final int btnMarginX;
     private final int btnMarginY;
      */
-    private final JButton routesNumberCheck, ordersNumberCheck, trucksPerRouteCheck, save;
-    private final JTextField number_ROUTES, number_ORDERS, trucks_p_ROUTE_truck;
+    private final JButton routesNumberCheck, ordersNumberCheck, trucksPerRouteCheck, ordersPerTruckCheck, save, saveMatrixValue;
+    private final JTextField number_ROUTES, number_ORDERS, trucks_p_ROUTE_value, trucks_p_ROUTE_truck;
     private int n_Routes, n_Orders, trucks_Route, orders_Truck;
-    private boolean nRoutes_PROVIDED = false, nOrders_PROVIDED = false, trucks_pRoute_PROVIDED = false;
+    private boolean nRoutes_PROVIDED = false, nOrders_PROVIDED = false, trucks_pRoute_PROVIDED = false, orders_pTruck_PROVIDED = false;
     private final JLabel ordersCounterLbl;
-    private final JSpinner trucks_p_ROUTE_route, trucks_p_ROUTE_order;
+    private final JSpinner trucks_p_ROUTE_route, trucks_p_ROUTE_order, trucks_p_ROUTE;
 
     private final ProgramWindow programWindow;
-    private int[][] allocated, needs, max;
-    private int[] resources, available;
-    private int i = 0, j = 0;
+    private BankerAlgorithm banker;
+    private int[][] max;
+    private int[] resources;
+    private int i = 0, j = 0, resIndex = 0;
+    private boolean indexChanged = false;
 
     public ParametersWindow(final int width, final int height) {
 
@@ -189,6 +192,21 @@ public class ParametersWindow extends JFrame {
             }
         });
 
+        this.ordersPerTruckCheck = new JButton();
+        this.ordersPerTruckCheck.setBounds((this.screenSizeW * 42) / 100, (this.screenSizeH * 41) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100);
+        this.ordersPerTruckCheck.setFocusPainted(false);
+        this.ordersPerTruckCheck.setContentAreaFilled(false);
+        this.ordersPerTruckCheck.setFocusPainted(false);
+        this.ordersPerTruckCheck.setCursor(pointer);
+        this.ordersPerTruckCheck.setBorder(null);
+        this.ordersPerTruckCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+        this.ordersPerTruckCheck.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                ordersPerTruckCheckButtonActionPerformed();
+            }
+        });
+
         this.number_ROUTES = new JTextField();
         this.number_ROUTES.setBounds((this.screenSizeW * 26) / 100, (this.screenSizeH * 42) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 5) / 100);
         this.number_ROUTES.setBorder(null);
@@ -241,8 +259,84 @@ public class ParametersWindow extends JFrame {
             }
         });
 
+        /**
+         * ************************************
+         * ARRAY *
+         ************************************
+         */
+        this.trucks_p_ROUTE_value = new JTextField();
+        this.trucks_p_ROUTE_value.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 13) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
+        this.trucks_p_ROUTE_value.setBorder(null);
+        this.trucks_p_ROUTE_value.setBackground(null);
+        this.trucks_p_ROUTE_value.setHorizontalAlignment(SwingConstants.RIGHT);
+        this.trucks_p_ROUTE_value.setFont(new Font("Tahoma", 0, (this.screenSizeH * 3) / 100));
+        this.trucks_p_ROUTE_value.setForeground(Color.GRAY);
+        this.trucks_p_ROUTE_value.setText("1");
+        this.trucks_p_ROUTE_value.setEditable(false);
+        this.trucks_p_ROUTE_value.setEnabled(false);
+        this.trucks_p_ROUTE_value.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (trucks_p_ROUTE_value.getText().equals("1")) {
+                    trucks_p_ROUTE_value.setText("");
+                    trucks_p_ROUTE_value.setForeground(Color.BLACK);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (trucks_p_ROUTE_value.getText().isEmpty()) {
+                    trucks_p_ROUTE_value.setForeground(Color.GRAY);
+                    trucks_p_ROUTE_value.setText("1");
+                } else {
+                    try {
+                        if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
+                            max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
+                        }
+                    } catch (Exception ex) {
+                        if (ex instanceof NumberFormatException) {
+                            JOptionPane.showMessageDialog(null, "Invalid Format", "ALERT", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                }
+            }
+        });
+        this.trucks_p_ROUTE_value.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                try {
+                    if (!trucks_p_ROUTE_value.getText().isEmpty()) {
+                        resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_value.getText());
+                    }
+                } catch (Exception e) {
+                    if (e instanceof NumberFormatException) {
+                        JOptionPane.showMessageDialog(null, "Invalid Format", "ALERT", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            }
+        });
+
+        this.trucks_p_ROUTE = new JSpinner();
+        this.trucks_p_ROUTE.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 17) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
+        this.trucks_p_ROUTE.setFont(new Font("Tahoma", 0, (this.screenSizeH * 3) / 100));
+        this.trucks_p_ROUTE.setAlignmentX(RIGHT_ALIGNMENT);
+        this.trucks_p_ROUTE.setBorder(null);
+        this.trucks_p_ROUTE.setEnabled(false);
+        this.trucks_p_ROUTE.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                resIndex = Integer.parseInt(trucks_p_ROUTE.getValue().toString());
+                trucks_p_ROUTE_truck.setText("" + resources[resIndex]);
+            }
+        });
+
+        /**
+         * ************************************
+         * MATRIX *
+         ************************************
+         */
         this.trucks_p_ROUTE_truck = new JTextField();
-        this.trucks_p_ROUTE_truck.setBounds((this.screenSizeW * 63) / 100, (this.screenSizeH * 14) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
+        this.trucks_p_ROUTE_truck.setBounds((this.screenSizeW * 63) / 100, (this.screenSizeH * 42) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
         this.trucks_p_ROUTE_truck.setBorder(null);
         this.trucks_p_ROUTE_truck.setBackground(null);
         this.trucks_p_ROUTE_truck.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -267,7 +361,7 @@ public class ParametersWindow extends JFrame {
                     trucks_p_ROUTE_truck.setText("1");
                 } else {
                     try {
-                        if (trucks_p_ROUTE_truck.getText().isEmpty()) {
+                        if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
                             max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
                         }
                     } catch (Exception ex) {
@@ -282,7 +376,7 @@ public class ParametersWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
-                    if (trucks_p_ROUTE_truck.getText().isEmpty()) {
+                    if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
                         max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
                     }
                 } catch (Exception e) {
@@ -295,7 +389,7 @@ public class ParametersWindow extends JFrame {
 
         this.trucks_p_ROUTE_route = new JSpinner();
         //this.trucks_p_ROUTE_route.setModel(new SpinnerNumberModel(0, 0, null, 1));
-        this.trucks_p_ROUTE_route.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 18) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
+        this.trucks_p_ROUTE_route.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 46) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
         this.trucks_p_ROUTE_route.setFont(new Font("Tahoma", 0, (this.screenSizeH * 3) / 100));
         this.trucks_p_ROUTE_route.setAlignmentX(RIGHT_ALIGNMENT);
         this.trucks_p_ROUTE_route.setBorder(null);
@@ -304,6 +398,9 @@ public class ParametersWindow extends JFrame {
             @Override
             public void stateChanged(ChangeEvent ce) {
                 i = Integer.parseInt(trucks_p_ROUTE_route.getValue().toString());
+                if (i != resIndex) {
+                    indexChanged = true;
+                }
                 if (i < n_Routes && j < n_Orders) {
                     trucks_p_ROUTE_truck.setText("" + max[i][j]);
                 }
@@ -313,7 +410,7 @@ public class ParametersWindow extends JFrame {
 
         this.trucks_p_ROUTE_order = new JSpinner();
         //this.trucks_p_ROUTE_route.setModel(new SpinnerNumberModel(0, 0, null, 1));
-        this.trucks_p_ROUTE_order.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 22) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
+        this.trucks_p_ROUTE_order.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 50) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
         this.trucks_p_ROUTE_order.setFont(new Font("Tahoma", 0, (this.screenSizeH * 3) / 100));
         this.trucks_p_ROUTE_order.setAlignmentX(RIGHT_ALIGNMENT);
         this.trucks_p_ROUTE_order.setBorder(null);
@@ -328,6 +425,11 @@ public class ParametersWindow extends JFrame {
             }
         });
 
+        /**
+         * ************************************
+         * MATRIX / END *
+         ************************************
+         */
         JButton queue = new JButton();
         queue.setBounds((this.screenSizeW * 80) / 100, (this.screenSizeH * 9) / 100, (this.screenSizeH * 5) / 100, (this.screenSizeH * 37) / 100);
         queue.setContentAreaFilled(false);
@@ -365,8 +467,23 @@ public class ParametersWindow extends JFrame {
         save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
-                System.out.println("" + max[i][j]);
+                if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
+                    try {
+                        max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
+                        System.out.println("" + max[i][j]);
+                        if (indexChanged == true) {
+                            resIndex = i;
+                            resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
+                            System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
+                        }
+                    } catch (Exception e) {
+                        if (e instanceof NumberFormatException) {
+                            JOptionPane.showMessageDialog(null, "Format Invalid", "ALERT", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please Provide a value greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         save.setEnabled(false);
@@ -382,6 +499,48 @@ public class ParametersWindow extends JFrame {
             }
         });
 
+        saveMatrixValue = new JButton();
+        saveMatrixValue.setBounds((this.screenSizeW * 69) / 100, (this.screenSizeH * 42) / 100, (this.screenSizeH * 2) / 100, (this.screenSizeH * 3) / 100);
+        saveMatrixValue.setIcon(new ImageIcon(s.getImage().getScaledInstance((this.screenSizeH * 2) / 100, (this.screenSizeH * 2) / 100, Image.SCALE_SMOOTH)));
+        saveMatrixValue.setBorder(null);
+        saveMatrixValue.setContentAreaFilled(false);
+        saveMatrixValue.setCursor(pointer);
+        saveMatrixValue.setFocusPainted(false);
+        saveMatrixValue.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
+                    try {
+                        max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
+                        System.out.println("" + max[i][j]);
+                        if (indexChanged == true) {
+                            resIndex = i;
+                            resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
+                            System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
+                        }
+                    } catch (Exception e) {
+                        if (e instanceof NumberFormatException) {
+                            JOptionPane.showMessageDialog(null, "Format Invalid", "ALERT", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please Provide a value greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        saveMatrixValue.setEnabled(false);
+        saveMatrixValue.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent me) {
+                saveMatrixValue.setContentAreaFilled(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+                saveMatrixValue.setContentAreaFilled(false);
+            }
+        });
+
         this.add(this.background);
         this.background.add(this.exitBtn);
         this.background.add(this.hideBtn);
@@ -389,9 +548,13 @@ public class ParametersWindow extends JFrame {
         this.background.add(this.routesNumberCheck);
         this.background.add(this.ordersNumberCheck);
         this.background.add(this.trucksPerRouteCheck);
+        this.background.add(this.ordersPerTruckCheck);
         this.background.add(this.number_ROUTES);
         this.background.add(this.number_ORDERS);
         this.background.add(save);
+        this.background.add(saveMatrixValue);
+        this.background.add(this.trucks_p_ROUTE);
+        this.background.add(this.trucks_p_ROUTE_value);
         this.background.add(this.trucks_p_ROUTE_truck);
         this.background.add(this.trucks_p_ROUTE_order);
         this.background.add(this.trucks_p_ROUTE_route);
@@ -427,6 +590,7 @@ public class ParametersWindow extends JFrame {
                         this.trucks_p_ROUTE_truck.setEditable(true);
                         this.trucks_p_ROUTE_truck.setEnabled(true);
                         save.setEnabled(true);
+                        this.resources = new int[n_Routes];
                     }
                 } else {
                     JOptionPane.showMessageDialog(this, "Please provide a value", "ALERT", JOptionPane.ERROR_MESSAGE);
@@ -441,10 +605,12 @@ public class ParametersWindow extends JFrame {
                 save.setEnabled(false);
             }
 
-            if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true) {
+            if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true && this.orders_pTruck_PROVIDED == true) {
                 this.orderNowBtn.setIcon(new ImageIcon(this.oN_able.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(true);
             } else {
                 this.orderNowBtn.setIcon(new ImageIcon(this.oN_disable.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(false);
             }
 
         } catch (Exception e) {
@@ -481,14 +647,10 @@ public class ParametersWindow extends JFrame {
                         this.trucks_p_ROUTE_truck.setEditable(true);
                         this.trucks_p_ROUTE_truck.setEnabled(true);
                         save.setEnabled(true);
-
-                        this.allocated = new int[this.n_Routes][this.n_Orders];
-                        this.needs = new int[this.n_Routes][this.n_Orders];
                         this.max = new int[this.n_Routes][this.n_Orders];
-                        this.resources = new int[this.n_Routes];
-                        this.available = new int[this.n_Routes];
+                        this.resources = new int[n_Routes];
 
-                        initializeArrays();
+                        initializeArray();
                         this.trucks_p_ROUTE_truck.setText("" + this.max[i][j]);
                     }
                 } else {
@@ -504,10 +666,12 @@ public class ParametersWindow extends JFrame {
                 save.setEnabled(false);
             }
 
-            if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true) {
+            if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true && this.orders_pTruck_PROVIDED == true) {
                 this.orderNowBtn.setIcon(new ImageIcon(this.oN_able.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(true);
             } else {
                 this.orderNowBtn.setIcon(new ImageIcon(this.oN_disable.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(false);
             }
 
         } catch (Exception e) {
@@ -540,10 +704,12 @@ public class ParametersWindow extends JFrame {
                 this.trucksPerRouteCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
             }
 
-            if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true) {
+            if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true && this.orders_pTruck_PROVIDED == true) {
                 this.orderNowBtn.setIcon(new ImageIcon(this.oN_able.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(true);
             } else {
                 this.orderNowBtn.setIcon(new ImageIcon(this.oN_disable.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(false);
             }
 
         } catch (Exception e) {
@@ -552,6 +718,31 @@ public class ParametersWindow extends JFrame {
             }
         }
 
+    }
+
+    private void ordersPerTruckCheckButtonActionPerformed() {
+        this.orders_pTruck_PROVIDED = !orders_pTruck_PROVIDED;
+
+        try {
+            if (orders_pTruck_PROVIDED == true) {
+                this.ordersPerTruckCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+            } else {
+                this.ordersPerTruckCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+            }
+
+            if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true && this.orders_pTruck_PROVIDED == true) {
+                this.orderNowBtn.setIcon(new ImageIcon(this.oN_able.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(true);
+            } else {
+                this.orderNowBtn.setIcon(new ImageIcon(this.oN_disable.getImage().getScaledInstance((this.screenSizeW * 12) / 100, (this.screenSizeH * 10) / 100, Image.SCALE_SMOOTH)));
+                this.orderNowBtn.setEnabled(false);
+            }
+
+        } catch (Exception e) {
+            if (e instanceof NumberFormatException) {
+                JOptionPane.showMessageDialog(this, "Invalid format provided", "ALERT", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void orderNowBtnActionPerformed() {
@@ -567,25 +758,14 @@ public class ParametersWindow extends JFrame {
         }
     }
 
-    private void initializeArrays() {
+    private void initializeArray() {
         for (int i = 0; i < this.n_Routes; i++) {
-            for (int j = 0; j < this.n_Orders; j++) {
-                allocated[i][j] = 0;
-            }
-        }
-
-        for (int i = 0; i < this.n_Routes; i++) {
+            resources[i] = 0;
             for (int j = 0; j < this.n_Orders; j++) {
                 max[i][j] = 0;
                 if (i == j) {
                     max[i][j] = 1;
                 }
-            }
-        }
-
-        for (int i = 0; i < this.n_Routes; i++) {
-            for (int j = 0; j < this.n_Orders; j++) {
-                needs[i][j] = 0;
             }
         }
     }

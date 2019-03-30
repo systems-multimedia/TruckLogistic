@@ -105,8 +105,8 @@ public class BankerAlgorithm {
         for (int i = 0; i < n_Routes; i++) {
             System.out.println(Arrays.toString(allocated[i]));
         }
-        
-        if(safe()) {
+
+        if (safe()) {
             System.out.println("***************************");
             System.out.println("*          SAFE           *");
             System.out.println("***************************");
@@ -126,23 +126,26 @@ public class BankerAlgorithm {
                     if (need[i][j] > work[j]) {
                         j = n_Orders;
                         blockedProcesses++;
-                        System.out.println("Process " + i + " Blocked!!") ;
+                        System.out.println("Process " + i + " Blocked!!");
                     } else {
                         cont++;
                         if (cont == n_Orders) {
                             addWork(need[i]);
+                            if (blockedProcesses > 0) {
+                                blockedProcesses--;
+                            }
                             finish[i] = true;
                         }
                     }
                 }
             }
-            if(blockedProcesses > 0) {
+            if (blockedProcesses > 0) {
                 i = 0;
             }
         }
-        
-        for(int i=0; i<finish.length; i++) {
-            if(finish[i] == false) {
+
+        for (int i = 0; i < finish.length; i++) {
+            if (finish[i] == false) {
                 return false;
             }
         }

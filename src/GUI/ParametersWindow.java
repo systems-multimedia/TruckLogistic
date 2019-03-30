@@ -54,7 +54,7 @@ public class ParametersWindow extends JFrame {
     private final JTextField number_ROUTES, number_ORDERS, trucks_p_ROUTE_value, trucks_p_ROUTE_truck;
     private int n_Routes, n_Orders, trucks_Route, orders_Truck;
     private boolean nRoutes_PROVIDED = false, nOrders_PROVIDED = false, trucks_pRoute_PROVIDED = false, orders_pTruck_PROVIDED = false;
-    private final JLabel ordersCounterLbl;
+    private final JLabel ordersCounterLbl, message;
     private final JSpinner trucks_p_ROUTE_route, trucks_p_ROUTE_order, trucks_p_ROUTE;
 
     private final ProgramWindow programWindow;
@@ -132,6 +132,7 @@ public class ParametersWindow extends JFrame {
         this.orderNowBtn.setContentAreaFilled(false);
         this.orderNowBtn.setCursor(pointer);
         this.orderNowBtn.setBorder(null);
+        this.orderNowBtn.setEnabled(false);
         this.orderNowBtn.addActionListener((ActionEvent ae) -> {
             orderNowBtnActionPerformed();
         });
@@ -184,6 +185,7 @@ public class ParametersWindow extends JFrame {
         this.trucksPerRouteCheck.setFocusPainted(false);
         this.trucksPerRouteCheck.setCursor(pointer);
         this.trucksPerRouteCheck.setBorder(null);
+        this.trucksPerRouteCheck.setEnabled(false);
         this.trucksPerRouteCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
         this.trucksPerRouteCheck.addActionListener(new ActionListener() {
             @Override
@@ -199,6 +201,7 @@ public class ParametersWindow extends JFrame {
         this.ordersPerTruckCheck.setFocusPainted(false);
         this.ordersPerTruckCheck.setCursor(pointer);
         this.ordersPerTruckCheck.setBorder(null);
+        this.ordersPerTruckCheck.setEnabled(false);
         this.ordersPerTruckCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
         this.ordersPerTruckCheck.addActionListener(new ActionListener() {
             @Override
@@ -263,6 +266,45 @@ public class ParametersWindow extends JFrame {
          * ************************************
          * ARRAY * ***********************************
          */
+        s = new ImageIcon(getClass().getResource("/Img/Buttons/19. Save Button.png"));
+        save = new JButton();
+        save.setBounds((this.screenSizeW * 66) / 100, (this.screenSizeH * 13) / 100, (this.screenSizeH * 2) / 100, (this.screenSizeH * 3) / 100);
+        save.setIcon(new ImageIcon(s.getImage().getScaledInstance((this.screenSizeH * 2) / 100, (this.screenSizeH * 2) / 100, Image.SCALE_SMOOTH)));
+        save.setBorder(null);
+        save.setContentAreaFilled(false);
+        save.setCursor(pointer);
+        save.setFocusPainted(false);
+        save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (!trucks_p_ROUTE_value.getText().isEmpty()) {
+                    try {
+                        resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_value.getText());
+                        System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
+                        message.setText("resource[" + (resIndex + 1) + "] = " + resources[resIndex]);
+                    } catch (Exception e) {
+                        if (e instanceof NumberFormatException) {
+                            JOptionPane.showMessageDialog(null, "Format Invalid", "ALERT", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please Provide a value greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        save.setEnabled(false);
+        save.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent me) {
+                save.setContentAreaFilled(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+                save.setContentAreaFilled(false);
+            }
+        });
+
         this.trucks_p_ROUTE_value = new JTextField();
         this.trucks_p_ROUTE_value.setBounds((this.screenSizeW * 60) / 100, (this.screenSizeH * 13) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
         this.trucks_p_ROUTE_value.setBorder(null);
@@ -286,17 +328,7 @@ public class ParametersWindow extends JFrame {
             public void focusLost(FocusEvent e) {
                 if (trucks_p_ROUTE_value.getText().isEmpty()) {
                     trucks_p_ROUTE_value.setForeground(Color.GRAY);
-                    trucks_p_ROUTE_value.setText("1");
-                } else {
-                    try {
-                        if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
-                            max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
-                        }
-                    } catch (Exception ex) {
-                        if (ex instanceof NumberFormatException) {
-                            JOptionPane.showMessageDialog(null, "Invalid Format", "ALERT", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
+                    trucks_p_ROUTE_value.setText("" + resources[resIndex]);
                 }
             }
         });
@@ -306,6 +338,8 @@ public class ParametersWindow extends JFrame {
                 try {
                     if (!trucks_p_ROUTE_value.getText().isEmpty()) {
                         resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_value.getText());
+                        System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
+                        message.setText("resource[" + (resIndex + 1) + "] = " + resources[resIndex]);
                     }
                 } catch (Exception e) {
                     if (e instanceof NumberFormatException) {
@@ -325,7 +359,7 @@ public class ParametersWindow extends JFrame {
             @Override
             public void stateChanged(ChangeEvent ce) {
                 resIndex = Integer.parseInt(trucks_p_ROUTE.getValue().toString());
-                trucks_p_ROUTE_truck.setText("" + resources[resIndex]);
+                trucks_p_ROUTE_value.setText("" + resources[resIndex]);
             }
         });
 
@@ -333,6 +367,51 @@ public class ParametersWindow extends JFrame {
          * ************************************
          * MATRIX * ***********************************
          */
+        saveMatrixValue = new JButton();
+        saveMatrixValue.setBounds((this.screenSizeW * 69) / 100, (this.screenSizeH * 42) / 100, (this.screenSizeH * 2) / 100, (this.screenSizeH * 3) / 100);
+        saveMatrixValue.setIcon(new ImageIcon(s.getImage().getScaledInstance((this.screenSizeH * 2) / 100, (this.screenSizeH * 2) / 100, Image.SCALE_SMOOTH)));
+        saveMatrixValue.setBorder(null);
+        saveMatrixValue.setContentAreaFilled(false);
+        saveMatrixValue.setCursor(pointer);
+        saveMatrixValue.setFocusPainted(false);
+        saveMatrixValue.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
+                    try {
+                        if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
+                            max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
+                            if (max[i][j] > resources[i]) {
+                                JOptionPane.showMessageDialog(null, "Value needs to be less or equal to " + resources[i] + " (resource[" + i + "])");
+                                max[i][j] = 0;
+                                trucks_p_ROUTE_truck.setText("" + max[i][j]);
+                            }
+                            System.out.println("max[" + (i) + "][" + (j) + "] = " + max[i][j]);
+                            message.setText("max[" + (i + 1) + "][" + (j + 1) + "] = " + max[i][j]);
+                        }
+                    } catch (Exception ex) {
+                        if (ex instanceof NumberFormatException) {
+                            JOptionPane.showMessageDialog(null, "Invalid Format", "ALERT", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "Please Provide a value greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        saveMatrixValue.setEnabled(false);
+        saveMatrixValue.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent me) {
+                saveMatrixValue.setContentAreaFilled(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent me) {
+                saveMatrixValue.setContentAreaFilled(false);
+            }
+        });
+
         this.trucks_p_ROUTE_truck = new JTextField();
         this.trucks_p_ROUTE_truck.setBounds((this.screenSizeW * 63) / 100, (this.screenSizeH * 42) / 100, (this.screenSizeW * 5) / 100, (this.screenSizeH * 3) / 100);
         this.trucks_p_ROUTE_truck.setBorder(null);
@@ -346,7 +425,7 @@ public class ParametersWindow extends JFrame {
         this.trucks_p_ROUTE_truck.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (trucks_p_ROUTE_truck.getText().equals("1")) {
+                if (trucks_p_ROUTE_truck.getText().equals("1") && trucks_p_ROUTE_truck.isEnabled()) {
                     trucks_p_ROUTE_truck.setText("");
                     trucks_p_ROUTE_truck.setForeground(Color.BLACK);
                 }
@@ -356,17 +435,7 @@ public class ParametersWindow extends JFrame {
             public void focusLost(FocusEvent e) {
                 if (trucks_p_ROUTE_truck.getText().isEmpty()) {
                     trucks_p_ROUTE_truck.setForeground(Color.GRAY);
-                    trucks_p_ROUTE_truck.setText("1");
-                } else {
-                    try {
-                        if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
-                            max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
-                        }
-                    } catch (Exception ex) {
-                        if (ex instanceof NumberFormatException) {
-                            JOptionPane.showMessageDialog(null, "Invalid Format", "ALERT", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
+                    trucks_p_ROUTE_truck.setText("" + max[i][j]);
                 }
             }
         });
@@ -376,9 +445,16 @@ public class ParametersWindow extends JFrame {
                 try {
                     if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
                         max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
+                        if (max[i][j] > resources[i]) {
+                            JOptionPane.showMessageDialog(null, "Value needs to be less or equal to " + resources[i] + " (resource[" + i + "]");
+                            max[i][j] = 0;
+                            trucks_p_ROUTE_truck.setText("" + max[i][j]);
+                        }
+                        System.out.println("max[" + (i) + "][" + (j) + "] = " + max[i][j]);
+                        message.setText("max[" + (i + 1) + "][" + (j + 1) + "] = " + max[i][j]);
                     }
-                } catch (Exception e) {
-                    if (e instanceof NumberFormatException) {
+                } catch (Exception ex) {
+                    if (ex instanceof NumberFormatException) {
                         JOptionPane.showMessageDialog(null, "Invalid Format", "ALERT", JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -423,6 +499,12 @@ public class ParametersWindow extends JFrame {
             }
         });
 
+        message = new JLabel();
+        message.setBounds((this.screenSizeW * 43) / 100, (this.screenSizeH * 60) / 100, (this.screenSizeW * 10) / 100, (this.screenSizeH * 3) / 100);
+        message.setBorder(null);
+        message.setFont(new Font("Tahoma", 0, (this.screenSizeH * 2) / 100));
+        message.setText("");
+
         /**
          * ************************************
          * MATRIX / END * ***********************************
@@ -453,91 +535,6 @@ public class ParametersWindow extends JFrame {
             }
         });
 
-        s = new ImageIcon(getClass().getResource("/Img/Buttons/19. Save Button.png"));
-        save = new JButton();
-        save.setBounds((this.screenSizeW * 69) / 100, (this.screenSizeH * 14) / 100, (this.screenSizeH * 2) / 100, (this.screenSizeH * 3) / 100);
-        save.setIcon(new ImageIcon(s.getImage().getScaledInstance((this.screenSizeH * 2) / 100, (this.screenSizeH * 2) / 100, Image.SCALE_SMOOTH)));
-        save.setBorder(null);
-        save.setContentAreaFilled(false);
-        save.setCursor(pointer);
-        save.setFocusPainted(false);
-        save.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
-                    try {
-                        max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
-                        System.out.println("" + max[i][j]);
-                        if (indexChanged == true) {
-                            resIndex = i;
-                            resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
-                            System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
-                        }
-                    } catch (Exception e) {
-                        if (e instanceof NumberFormatException) {
-                            JOptionPane.showMessageDialog(null, "Format Invalid", "ALERT", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Please Provide a value greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        save.setEnabled(false);
-        save.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent me) {
-                save.setContentAreaFilled(true);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent me) {
-                save.setContentAreaFilled(false);
-            }
-        });
-
-        saveMatrixValue = new JButton();
-        saveMatrixValue.setBounds((this.screenSizeW * 69) / 100, (this.screenSizeH * 42) / 100, (this.screenSizeH * 2) / 100, (this.screenSizeH * 3) / 100);
-        saveMatrixValue.setIcon(new ImageIcon(s.getImage().getScaledInstance((this.screenSizeH * 2) / 100, (this.screenSizeH * 2) / 100, Image.SCALE_SMOOTH)));
-        saveMatrixValue.setBorder(null);
-        saveMatrixValue.setContentAreaFilled(false);
-        saveMatrixValue.setCursor(pointer);
-        saveMatrixValue.setFocusPainted(false);
-        saveMatrixValue.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
-                    try {
-                        max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
-                        System.out.println("" + max[i][j]);
-                        if (indexChanged == true) {
-                            resIndex = i;
-                            resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
-                            System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
-                        }
-                    } catch (Exception e) {
-                        if (e instanceof NumberFormatException) {
-                            JOptionPane.showMessageDialog(null, "Format Invalid", "ALERT", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null, "Please Provide a value greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        });
-        saveMatrixValue.setEnabled(false);
-        saveMatrixValue.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent me) {
-                saveMatrixValue.setContentAreaFilled(true);
-            }
-
-            @Override
-            public void mouseExited(MouseEvent me) {
-                saveMatrixValue.setContentAreaFilled(false);
-            }
-        });
-
         this.add(this.background);
         this.background.add(this.exitBtn);
         this.background.add(this.hideBtn);
@@ -548,13 +545,14 @@ public class ParametersWindow extends JFrame {
         this.background.add(this.ordersPerTruckCheck);
         this.background.add(this.number_ROUTES);
         this.background.add(this.number_ORDERS);
-        this.background.add(save);
-        this.background.add(saveMatrixValue);
+        this.background.add(this.save);
+        this.background.add(this.saveMatrixValue);
         this.background.add(this.trucks_p_ROUTE);
         this.background.add(this.trucks_p_ROUTE_value);
         this.background.add(this.trucks_p_ROUTE_truck);
         this.background.add(this.trucks_p_ROUTE_order);
         this.background.add(this.trucks_p_ROUTE_route);
+        this.background.add(message);
         this.background.add(this.orderNowBtn);
         this.background.add(queue);
 
@@ -597,8 +595,10 @@ public class ParametersWindow extends JFrame {
                 this.routesNumberCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
                 this.trucks_p_ROUTE_route.setEnabled(false);
                 this.trucks_p_ROUTE_order.setEnabled(false);
-                this.trucks_p_ROUTE_truck.setEditable(false);
-                this.trucks_p_ROUTE_truck.setEnabled(false);
+                this.trucks_p_ROUTE_value.setEditable(false);
+                this.trucks_p_ROUTE_value.setEnabled(false);
+                this.trucksPerRouteCheck.setEnabled(false);
+                this.ordersPerTruckCheck.setEnabled(false);
                 save.setEnabled(false);
             }
 
@@ -637,13 +637,17 @@ public class ParametersWindow extends JFrame {
                     this.ordersNumberCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
 
                     if (this.nRoutes_PROVIDED == true) {
+                        this.trucksPerRouteCheck.setEnabled(true);
+                        this.trucks_p_ROUTE_value.setEditable(true);
+                        this.trucks_p_ROUTE_value.setEnabled(true);
                         this.trucks_p_ROUTE.setEnabled(true);
-                        this.trucks_p_ROUTE.setModel(new SpinnerNumberModel(0,0,this.n_Routes - 1, 1));
+                        this.trucks_p_ROUTE.setModel(new SpinnerNumberModel(0, 0, this.n_Routes - 1, 1));
                         save.setEnabled(true);
                         this.max = new int[this.n_Routes][this.n_Orders];
                         this.resources = new int[n_Routes];
 
                         initializeArray();
+                        this.trucks_p_ROUTE_value.setText("" + this.resources[resIndex]);
                         this.trucks_p_ROUTE_truck.setText("" + this.max[i][j]);
                     }
                 } else {
@@ -654,8 +658,10 @@ public class ParametersWindow extends JFrame {
                 this.ordersNumberCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
                 this.trucks_p_ROUTE_route.setEnabled(false);
                 this.trucks_p_ROUTE_order.setEnabled(false);
-                this.trucks_p_ROUTE_truck.setEditable(false);
-                this.trucks_p_ROUTE_truck.setEnabled(false);
+                this.trucks_p_ROUTE_value.setEditable(false);
+                this.trucks_p_ROUTE_value.setEnabled(false);
+                this.trucksPerRouteCheck.setEnabled(false);
+                this.ordersPerTruckCheck.setEnabled(false);
                 save.setEnabled(false);
             }
 
@@ -681,33 +687,24 @@ public class ParametersWindow extends JFrame {
 
         try {
             if (trucks_pRoute_PROVIDED == true) {
-                if (!this.trucks_p_ROUTE_truck.getText().isEmpty()) {
-                    this.trucks_Route = Integer.parseInt(this.trucks_p_ROUTE_truck.getText());
-                    if (this.trucks_Route <= 0) {
-                        JOptionPane.showMessageDialog(this, "Values need to be greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    if (this.nRoutes_PROVIDED == true) {
-                        this.trucks_p_ROUTE_route.setModel(new SpinnerNumberModel(0, 0, this.n_Routes - 1, 1));
-                        this.trucks_p_ROUTE_order.setEnabled(true);
-                        this.trucks_p_ROUTE_order.setModel(new SpinnerNumberModel(0, 0, this.n_Orders - 1, 1));
-                        this.trucks_p_ROUTE_truck.setEditable(true);
-                        this.trucks_p_ROUTE_truck.setEnabled(true);
-                        saveMatrixValue.setEnabled(true);
-                        this.max = new int[this.n_Routes][this.n_Orders];
-                        this.resources = new int[n_Routes];
-
-                        initializeArray();
-                        this.trucks_p_ROUTE_truck.setText("" + this.max[i][j]);
-                    }
-                    this.trucks_p_ROUTE_truck.setEditable(false);
-                    this.trucksPerRouteCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
-                } else {
-                    JOptionPane.showMessageDialog(this, "Please provide a value", "ALERT", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
+                this.trucks_p_ROUTE_value.setEnabled(false);
+                this.trucks_p_ROUTE_value.setEditable(false);
                 this.trucks_p_ROUTE_truck.setEditable(true);
+                this.trucks_p_ROUTE_truck.setEnabled(true);
+                this.ordersPerTruckCheck.setEnabled(true);
+                this.trucks_p_ROUTE_route.setEnabled(true);
+                this.trucks_p_ROUTE_route.setModel(new SpinnerNumberModel(0, 0, this.n_Routes - 1, 1));
+                this.trucks_p_ROUTE_order.setEnabled(true);
+                this.trucks_p_ROUTE_order.setModel(new SpinnerNumberModel(0, 0, this.n_Orders - 1, 1));
+                this.saveMatrixValue.setEnabled(true);
+                this.trucksPerRouteCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+            } else {
+                this.trucks_p_ROUTE_value.setEnabled(true);
+                this.trucks_p_ROUTE_value.setEditable(true);
+                this.trucks_p_ROUTE_truck.setEnabled(false);
+                this.trucks_p_ROUTE_truck.setEditable(false);
                 this.trucksPerRouteCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+                this.saveMatrixValue.setEnabled(false);
             }
 
             if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true && this.orders_pTruck_PROVIDED == true) {
@@ -732,6 +729,8 @@ public class ParametersWindow extends JFrame {
         try {
             if (orders_pTruck_PROVIDED == true) {
                 this.ordersPerTruckCheck.setIcon(new ImageIcon(this.checked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+                this.trucks_p_ROUTE_truck.setEditable(false);
+                this.trucks_p_ROUTE_truck.setEditable(false);
             } else {
                 this.ordersPerTruckCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
             }

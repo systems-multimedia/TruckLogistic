@@ -1,7 +1,10 @@
 package GUI;
 
+import Controller.BankerAlgorithm;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +15,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class ProgramWindow extends JFrame {
 
@@ -32,6 +38,7 @@ public class ProgramWindow extends JFrame {
 
     private final JLabel background;
 
+    public static JTable table;
 
     private final int percent = 23;
 
@@ -93,14 +100,23 @@ public class ProgramWindow extends JFrame {
             }
         });
 
-        this.add(this.background);
+        ProgramWindow.table = new JTable();
+        ProgramWindow.table.setBounds((this.screenSizeW * 10) / 100, (this.screenSizeH * 10) / 100, ((this.screenSizeW * 85) / 100), (this.screenSizeH * 60) / 100);
+        //ProgramWindow.table.setForeground(Color.black);
+        ProgramWindow.table.setFont(new Font("Tahoma", 0, (this.screenSizeH * 2) / 100));
+        //ProgramWindow.table.setBackground(Color.GRAY);
+        
+        JScrollPane scroll = new JScrollPane();
+        scroll.setViewportView(table);
+        
+        this.add(scroll);
         this.background.add(this.exitBtn);
         this.background.add(this.hideBtn);
+        this.background.add(ProgramWindow.table);
     }
 
     private void hideBtnActionPerformed() {
         this.setState(JFrame.ICONIFIED);
     }
-    
-    
+
 }

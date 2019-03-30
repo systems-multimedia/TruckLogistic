@@ -13,6 +13,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import javafx.beans.value.ObservableValue;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -280,8 +281,12 @@ public class ParametersWindow extends JFrame {
                 if (!trucks_p_ROUTE_value.getText().isEmpty()) {
                     try {
                         resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_value.getText());
-                        System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
-                        message.setText("resource[" + (resIndex + 1) + "] = " + resources[resIndex]);
+                        System.out.println("\n***************** Resources *********************\n");
+                        System.out.println(Arrays.toString(resources));
+                        message.setText(Arrays.toString(resources));
+                        //for (int k = 0; k < n_Routes; k++) {
+                        //    System.out.append("| " + resources[k] + " |");
+                        //}
                     } catch (Exception e) {
                         if (e instanceof NumberFormatException) {
                             JOptionPane.showMessageDialog(null, "Format Invalid", "ALERT", JOptionPane.ERROR_MESSAGE);
@@ -338,8 +343,12 @@ public class ParametersWindow extends JFrame {
                 try {
                     if (!trucks_p_ROUTE_value.getText().isEmpty()) {
                         resources[resIndex] = Integer.parseInt(trucks_p_ROUTE_value.getText());
-                        System.out.println("resources[" + resIndex + "] = " + resources[resIndex]);
-                        message.setText("resource[" + (resIndex + 1) + "] = " + resources[resIndex]);
+                        System.out.println("\n***************** Resources *********************\n");
+                        System.out.println(Arrays.toString(resources));
+                        message.setText(Arrays.toString(resources));
+                        //for (int k = 0; k < n_Routes; k++) {
+                        //    System.out.append("| " + resources[k] + " |");
+                        //}
                     }
                 } catch (Exception e) {
                     if (e instanceof NumberFormatException) {
@@ -386,8 +395,13 @@ public class ParametersWindow extends JFrame {
                                 max[i][j] = 0;
                                 trucks_p_ROUTE_truck.setText("" + max[i][j]);
                             }
-                            System.out.println("max[" + (i) + "][" + (j) + "] = " + max[i][j]);
-                            message.setText("max[" + (i + 1) + "][" + (j + 1) + "] = " + max[i][j]);
+                            //System.out.println("max[" + (i) + "][" + (j) + "] = " + max[i][j]);
+                            message.setText("resource[" + (i + 1) + "] = " + resources[i] + " || \nmax[" + (i + 1) + "][" + (j + 1) + "] = " + max[i][j]);
+                            //System.out.println(Arrays.toString(max[i]));
+                            System.out.println("\n***************** Max *********************\n");
+                            for (int l = 0; l < n_Routes; l++) {
+                                System.out.println(Arrays.toString(max[l]));
+                            }
                         }
                     } catch (Exception ex) {
                         if (ex instanceof NumberFormatException) {
@@ -446,12 +460,16 @@ public class ParametersWindow extends JFrame {
                     if (!trucks_p_ROUTE_truck.getText().isEmpty()) {
                         max[i][j] = Integer.parseInt(trucks_p_ROUTE_truck.getText());
                         if (max[i][j] > resources[i]) {
-                            JOptionPane.showMessageDialog(null, "Value needs to be less or equal to " + resources[i] + " (resource[" + i + "]");
+                            JOptionPane.showMessageDialog(null, "Value needs to be less or equal to " + resources[i] + " (resource[" + i + "])");
                             max[i][j] = 0;
                             trucks_p_ROUTE_truck.setText("" + max[i][j]);
                         }
-                        System.out.println("max[" + (i) + "][" + (j) + "] = " + max[i][j]);
-                        message.setText("max[" + (i + 1) + "][" + (j + 1) + "] = " + max[i][j]);
+                        //System.out.println("max[" + (i) + "][" + (j) + "] = " + max[i][j]);
+                        message.setText("resource[" + (i + 1) + "] = " + resources[i] + " || \nmax[" + (i + 1) + "][" + (j + 1) + "] = " + max[i][j]);
+                        System.out.println("\n***************** Max *********************\n");
+                        for (int l = 0; l < n_Routes; l++) {
+                            System.out.println(Arrays.toString(max[l]));
+                        }
                     }
                 } catch (Exception ex) {
                     if (ex instanceof NumberFormatException) {
@@ -500,7 +518,7 @@ public class ParametersWindow extends JFrame {
         });
 
         message = new JLabel();
-        message.setBounds((this.screenSizeW * 43) / 100, (this.screenSizeH * 60) / 100, (this.screenSizeW * 10) / 100, (this.screenSizeH * 3) / 100);
+        message.setBounds((this.screenSizeW * 43) / 100, (this.screenSizeH * 60) / 100, (this.screenSizeW * 20) / 100, (this.screenSizeH * 3) / 100);
         message.setBorder(null);
         message.setFont(new Font("Tahoma", 0, (this.screenSizeH * 2) / 100));
         message.setText("");
@@ -733,6 +751,8 @@ public class ParametersWindow extends JFrame {
                 this.trucks_p_ROUTE_truck.setEditable(false);
             } else {
                 this.ordersPerTruckCheck.setIcon(new ImageIcon(this.unchecked.getImage().getScaledInstance((this.screenSizeW * 5) / 100, (this.screenSizeW * 5) / 100, Image.SCALE_SMOOTH)));
+                this.trucks_p_ROUTE_truck.setEnabled(true);
+                this.trucks_p_ROUTE_truck.setEditable(true);
             }
 
             if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true && this.orders_pTruck_PROVIDED == true) {
@@ -751,11 +771,18 @@ public class ParametersWindow extends JFrame {
     }
 
     private void orderNowBtnActionPerformed() {
-        if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true) {
+        if (this.nOrders_PROVIDED == true && this.nRoutes_PROVIDED == true && this.trucks_pRoute_PROVIDED == true && this.orders_pTruck_PROVIDED == true) {
             //JOptionPane.showMessageDialog(this, "App Initialized", "MESSAGE", JOptionPane.PLAIN_MESSAGE);
-            this.programWindow.setVisible(true);
-            this.programWindow.setEnabled(true);
-
+            //this.programWindow.setVisible(true);
+            //this.programWindow.setEnabled(true);
+            /**
+             *
+             * @param max
+             * @param res
+             * @param n_Routes
+             * @param n_Orders
+             */
+            this.banker = new BankerAlgorithm(max, resources, n_Routes, n_Orders);
             this.setVisible(false);
             this.setEnabled(false);
         } else {

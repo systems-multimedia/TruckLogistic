@@ -9,9 +9,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -52,167 +54,167 @@ public class BankerAlgorithm {
             System.out.println(Arrays.toString(max[i]));
         }
 
-        for (int i = 0; i < n_Routes; i++) {
-            for (int j = 0; j < n_Orders; j++) {
-                modelArray[i][j] = max[i][j];
-                titles[i] = "Route (" + i + ")";
+        boolean safe = false;
+
+        while (!safe) {
+
+            this.allocated = max;
+            this.max = max;
+            this.need = allocated;
+            this.resources = res;
+            this.available = res;
+
+            System.out.println("Values");
+            System.out.println("max " + Arrays.deepToString(this.max));
+            System.out.println("allocated " + Arrays.deepToString(allocated));
+            System.out.println("need " + Arrays.deepToString(need));
+            System.out.println("resources " + Arrays.toString(resources));
+            System.out.println("available " + Arrays.toString(available));
+
+            asign();
+            updAvailable();
+            calcNeed();
+
+            int count = 0;
+
+            for (int i = 0; i < n_Orders; i++) {
+                for (int j = 0; j < n_Routes; j++) {
+
+                    if (available[j] < need[j][i]) {
+                        count++;
+                    }
+                }
             }
+
+            safe = count < ((n_Routes / 2) + 1);
+            System.out.println("safe => " + safe);
         }
 
-        System.out.println(Arrays.toString(res));
+        System.out.println("Values Safe");
+        System.out.println("max " + Arrays.deepToString(this.max));
+        System.out.println("allocated " + Arrays.deepToString(allocated));
+        System.out.println("need " + Arrays.deepToString(need));
+        System.out.println("resources " + Arrays.toString(resources));
+        System.out.println("available " + Arrays.toString(available));
 
-        JLabel title1 = new JLabel("Max");
-        title1.setBounds(0, 0, (Toolkit.getDefaultToolkit().getScreenSize().width * 75) / 100, 20);
-        title1.setFont(new Font("Tahoma", 0, ((Toolkit.getDefaultToolkit().getScreenSize().height * 10) / 100) * 2 / 100));
-        title1.setHorizontalAlignment(SwingConstants.CENTER);
-
-        JScrollPane scroll = new JScrollPane();
-        JTable table = new JTable(modelArray, titles);
-        //table.setBounds(0,20,(Toolkit.getDefaultToolkit().getScreenSize().width * 75) / 100, (Toolkit.getDefaultToolkit().getScreenSize().height * 10) / 100);
-        table.setPreferredScrollableViewportSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize().width * 75 / 100, (Toolkit.getDefaultToolkit().getScreenSize().height * 10) / 100));
-        table.setFillsViewportHeight(true);
-        scroll.setViewportView(table);
-        scroll.setLocation(0, 20);
-
-        JButton button = new JButton("try");
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                asign();
-            }
-        });
-        JFrame w = new JFrame("Table");
-        w.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        w.setSize(new Dimension((Toolkit.getDefaultToolkit().getScreenSize().width * 75) / 100, (Toolkit.getDefaultToolkit().getScreenSize().height * 75) / 100));
-        w.setResizable(false);
-        w.add(title1);
-        w.add(scroll);
-        w.add(button, BorderLayout.SOUTH);
-        w.setVisible(true);
-
-        ProgramWindow.table.setModel(new DefaultTableModel(modelArray, titles));
-
+        runSafe();
+        if (JOptionPane.showConfirmDialog(null, "Can I close?", "Closing Program", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
     }
 
     private void asign() {
-        for (int i = 0; i < n_Routes; i++) {
-            available[i] = 0;
-            finish[i] = false;
-            for (int j = 0; j < n_Orders; j++) {
-                need[i][j] = 0;
-                lockedP[i][j] = 0;
-            }
-        }
+        //Variables para llenar la matriz asignacion
+        int maxVal, disp, random;
 
         for (int i = 0; i < n_Routes; i++) {
+            disp = available[i];
             for (int j = 0; j < n_Orders; j++) {
-                if (max[i][j] != 0) {
-                    allocated[i][j] = random.nextInt(max[i][j]) % max[i][j];
+
+                if (disp > 0) {
+
+                    maxVal = max[i][j];
+                    if (maxVal > disp) {
+                        maxVal = disp;
+                    }
+
+                    random = ThreadLocalRandom.current().nextInt(0, maxVal + 1);
+                    allocated[i][j] = random;
+
+                    if (random < 0) {
+                        allocated[i][j] = allocated[i][j] * -1;
+                    }
+
+                    disp = disp - allocated[i][j];
+                    System.out.println("disp: " + disp);
                 } else {
-                    allocated[i][j] = 0;
+                    allocated[i][j] = disp;
                 }
+                System.out.println("allocated[" + i + "][" + j + "] = " + allocated[i][j]);
+            }
+        }
+    }
+
+    private void updAvailable() {
+        for (int j = 0; j < n_Routes; j++) {
+            for (int i = 0; i < n_Orders; i++) {
+                available[j] = resources[j] - allocated[j][i];
+            }
+        }
+    }
+
+    private void calcNeed() {
+        for (int i = 0; i < n_Routes; i++) {
+            for (int j = 0; j < n_Orders; j++) {
                 need[i][j] = max[i][j] - allocated[i][j];
             }
         }
-
-        System.out.println("************** ALLOCATED *************");
-        for (int i = 0; i < n_Routes; i++) {
-            System.out.println(Arrays.toString(allocated[i]));
-        }
-
-        if (safe()) {
-            System.out.println("***************************");
-            System.out.println("*          SAFE           *");
-            System.out.println("***************************");
-        }
     }
 
-    /**
-     * public boolean safe() { finish = new boolean[n_Routes]; for (int i = 0; i
-     * < finish.length; i++) { finish[i] = false; } work = available; int cont =
-     * 0; for (int i = 0; i < n_Routes; i++) { for (int j = 0; j < n_Orders; j++) {
-     * if (finish[i] == false) {
-     * if (need[i][j] > work[j]) { j = n_Orders; blockedProcesses++;
-     * System.out.println("Process " + i + " Blocked!!"); } else { cont++; if
-     * (cont == n_Orders) { addWork(need[i]); if (blockedProcesses > 0) {
-     * blockedProcesses--; } finish[i] = true; } } } } if (blockedProcesses > 0)
-     * { i = 0; } }
-     *
-     * for (int i = 0; i < finish.length; i++) { if (finish[i] == false) {
-     * return false; } } return true; }
-     */
-    private boolean safe() {
-        boolean locked = false;
-        boolean possible = true;
-        int[][] rest = allocated;
-        work = available;
-        while (possible) {
-            for (int i = 0; i < n_Routes; i++) {
-                if (finish[i] == false) {
-                    for (int j = 0; j < lockedP[i].length; j++) {
-                        if (lockedP[i][j] != 0) {
-                            locked = true;
-                        }
-                    }
+    public void runSafe() {
+        boolean done[] = new boolean[max.length];
+        int temp = 0;
+        String msg = "  ";
 
-                    if (!locked) {
-                        boolean allow = true;
-                        for (int j = 0; j < n_Orders; j++) {
-                            if (need[i][j] > available[j]) {
-                                allow = false;
-                            }
-                        }
+        while (temp < max.length) {
+            System.out.println("\n\nWhile\n\n");
+            for (int i = 0; i < n_Orders; i++) {
+                if (!done[i] && check(i)) {
+                    for (int k = 0; k < n_Routes; k++) {
+                        System.out.println("Allocated Before");
+                        System.out.println("--Available--");
+                        System.out.println(Arrays.toString(available));
+                        System.out.println("--Allocated--");
+                        System.out.println(Arrays.deepToString(allocated));
+                        System.out.println("--Need--");
+                        System.out.println(Arrays.deepToString(need));
 
-                        if (allow) {
-                            for (int j = 0; j < n_Orders; j++) {
-                                work[j] += allocated[i][j];
-                                endProcess(i);
-                            }
-                        } else {
-                            //lockProcess(i);
-                            possible = false;
-                        }
+                        allocated[k][i] = allocated[k][i] + need[k][i];
+                        available[k] = available[k] - need[k][i];
+                        need[k][i] = need[k][i] - need[k][i];
+
+                        System.out.println("Allocated after");
+                        System.out.println("--Available--");
+                        System.out.println(Arrays.toString(available));
+                        System.out.println("--Allocated--");
+                        System.out.println(Arrays.deepToString(allocated));
+                        System.out.println("--Need--");
+                        System.out.println(Arrays.deepToString(need));
+
                     }
+                    for (int j = 0; j < n_Routes; j++) {
+                        available[j] = available[j] + max[j][i];
+                        allocated[j][i] = allocated[j][i] - allocated[j][i];
+                    }
+                    System.out.println("Assigned : " + i);
+                    msg = msg + "Order " + (i + 1) + "  ";
+                    System.out.println(msg);
+                    done[i] = true;
+                    temp++;
                 }
             }
         }
 
-        int cont = 0;
-        for (int i = 0; i < finish.length; i++) {
-            if (finish[i] == true) {
-                cont++;
+        System.out.println(msg);
+
+        if (temp == max.length) //si todos los procesos estan asignados
+        {
+            System.out.println("\nSafe!");
+            JOptionPane.showMessageDialog(null, "Safe Status", "NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            System.out.println("not");
+        }
+
+    }
+
+    private boolean check(int i) {
+        for (int j = 0; j < n_Routes; j++) {
+            if (available[j] < need[j][i]) {
+                return false;
             }
         }
 
-        return cont == finish.length;
-    }
-
-    private void endProcess(int index) {
-        boolean done = true;
-        for (int i = 0; i < allocated[index].length; i++) {
-            if (allocated[index][i] != max[index][i]) {
-                done = false;
-            }
-        }
-
-        if (done) {
-            System.out.println("Process " + index + " done");
-            finish[index] = true;
-        }
-    }
-
-    private void lockProcess(int index) {
-        for (int i = 0; i < allocated[index].length; i++) {
-            lockedP[index][i] = 1;
-        }
-
-        System.out.println("Process " + index + " locked");
-    }
-
-    private void addWork(int[] array) {
-        for (int i = 0; i < work.length; i++) {
-            work[i] += array[i];
-        }
+        return true;
     }
 
 }

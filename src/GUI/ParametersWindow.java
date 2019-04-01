@@ -527,31 +527,7 @@ public class ParametersWindow extends JFrame {
          * ************************************
          * MATRIX / END * ***********************************
          */
-        JButton queue = new JButton();
-        queue.setBounds((this.screenSizeW * 80) / 100, (this.screenSizeH * 9) / 100, (this.screenSizeH * 5) / 100, (this.screenSizeH * 37) / 100);
-        queue.setContentAreaFilled(false);
-        //queue.setCursor(pointer);
-        queue.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                JFrame queueWindow = new JFrame();
-                queueWindow.setSize(new Dimension(screenSizeW, screenSizeH));
-                queueWindow.setLocationRelativeTo(null);
-                queueWindow.setUndecorated(true);
-                queueWindow.setResizable(false);
-
-                ImageIcon qBgImage = new ImageIcon(getClass().getResource("/Img/Buttons/hehe.png"));
-
-                JLabel qBg = new JLabel();
-                qBg.setSize(new Dimension(screenSizeW, screenSizeH));
-                qBg.setIcon(new ImageIcon(qBgImage.getImage().getScaledInstance(screenSizeW, screenSizeH, Image.SCALE_SMOOTH)));
-
-                queueWindow.add(qBg);
-                qBg.add(exitBtn);
-                queueWindow.setVisible(true);
-                hideWindow();
-            }
-        });
+        
 
         this.add(this.background);
         this.background.add(this.exitBtn);
@@ -572,7 +548,6 @@ public class ParametersWindow extends JFrame {
         this.background.add(this.trucks_p_ROUTE_route);
         this.background.add(message);
         this.background.add(this.orderNowBtn);
-        this.background.add(queue);
 
         this.programWindow = new ProgramWindow(this.screenSizeW, this.screenSizeH, this);
     }
@@ -795,9 +770,6 @@ public class ParametersWindow extends JFrame {
             resources[i] = 0;
             for (int j = 0; j < this.n_Orders; j++) {
                 max[i][j] = 0;
-                if (i == j) {
-                    max[i][j] = 1;
-                }
             }
         }
     }

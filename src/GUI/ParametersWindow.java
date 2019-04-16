@@ -218,11 +218,11 @@ public class ParametersWindow extends JFrame {
         this.number_ROUTES.setHorizontalAlignment(SwingConstants.RIGHT);
         this.number_ROUTES.setFont(new Font("Tahoma", 0, (this.screenSizeH * 5) / 100));
         this.number_ROUTES.setForeground(Color.GRAY);
-        this.number_ROUTES.setText("1");
+        this.number_ROUTES.setText("2");
         this.number_ROUTES.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (number_ROUTES.getText().equals("1")) {
+                if (!number_ROUTES.getText().isEmpty()) {
                     number_ROUTES.setText("");
                     number_ROUTES.setForeground(Color.BLACK);
                 }
@@ -232,7 +232,7 @@ public class ParametersWindow extends JFrame {
             public void focusLost(FocusEvent e) {
                 if (number_ROUTES.getText().isEmpty()) {
                     number_ROUTES.setForeground(Color.GRAY);
-                    number_ROUTES.setText("1");
+                    number_ROUTES.setText("2");
                 }
             }
         });
@@ -244,11 +244,11 @@ public class ParametersWindow extends JFrame {
         this.number_ORDERS.setHorizontalAlignment(SwingConstants.RIGHT);
         this.number_ORDERS.setFont(new Font("Tahoma", 0, (this.screenSizeH * 5) / 100));
         this.number_ORDERS.setForeground(Color.GRAY);
-        this.number_ORDERS.setText("1");
+        this.number_ORDERS.setText("2");
         this.number_ORDERS.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (number_ORDERS.getText().equals("1")) {
+                if (!number_ORDERS.getText().isEmpty()) {
                     number_ORDERS.setText("");
                     number_ORDERS.setForeground(Color.BLACK);
                 }
@@ -258,7 +258,7 @@ public class ParametersWindow extends JFrame {
             public void focusLost(FocusEvent e) {
                 if (number_ORDERS.getText().isEmpty()) {
                     number_ORDERS.setForeground(Color.GRAY);
-                    number_ORDERS.setText("1");
+                    number_ORDERS.setText("2");
                 }
             }
         });
@@ -323,7 +323,7 @@ public class ParametersWindow extends JFrame {
         this.trucks_p_ROUTE_value.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (trucks_p_ROUTE_value.getText().equals("1")) {
+                if (!trucks_p_ROUTE_value.getText().isEmpty()) {
                     trucks_p_ROUTE_value.setText("");
                     trucks_p_ROUTE_value.setForeground(Color.BLACK);
                 }
@@ -439,7 +439,7 @@ public class ParametersWindow extends JFrame {
         this.trucks_p_ROUTE_truck.addFocusListener(new FocusListener() {
             @Override
             public void focusGained(FocusEvent e) {
-                if (trucks_p_ROUTE_truck.getText().equals("1") && trucks_p_ROUTE_truck.isEnabled()) {
+                if (!trucks_p_ROUTE_truck.getText().isEmpty() && trucks_p_ROUTE_truck.isEnabled()) {
                     trucks_p_ROUTE_truck.setText("");
                     trucks_p_ROUTE_truck.setForeground(Color.BLACK);
                 }
@@ -589,8 +589,8 @@ public class ParametersWindow extends JFrame {
             if (nRoutes_PROVIDED == true) {
                 if (!this.number_ROUTES.getText().isEmpty()) {
                     this.n_Routes = Integer.parseInt(this.number_ROUTES.getText());
-                    if (this.n_Routes <= 0) {
-                        JOptionPane.showMessageDialog(this, "Values need to be greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
+                    if (this.n_Routes < 2) {
+                        JOptionPane.showMessageDialog(this, "Values need to be equal or greater than 2", "ALERT", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     this.number_ROUTES.setEditable(false);
@@ -647,8 +647,8 @@ public class ParametersWindow extends JFrame {
             if (nOrders_PROVIDED == true) {
                 if (!this.number_ORDERS.getText().isEmpty()) {
                     this.n_Orders = Integer.parseInt(this.number_ORDERS.getText());
-                    if (this.n_Orders <= 0) {
-                        JOptionPane.showMessageDialog(this, "Values need to be greater than zero", "ALERT", JOptionPane.ERROR_MESSAGE);
+                    if (this.n_Orders < 2) {
+                        JOptionPane.showMessageDialog(this, "Values need to be equal or greater than 2", "ALERT", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     this.number_ORDERS.setEditable(false);
